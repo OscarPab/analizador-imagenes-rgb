@@ -41,74 +41,75 @@ const ImageAnalyzer = () => {
     reader.readAsDataURL(file);
   };
 
-  const drawCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas || !image) return;
+  // SOLUCIÓN: Mover drawCanvas DENTRO del useEffect
+  useEffect(() => {
+    const drawCanvas = () => {
+      const canvas = canvasRef.current;
+      if (!canvas || !image) return;
 
-    const ctx = canvas.getContext('2d');
-    
-    // Calcular tamaño del canvas manteniendo proporción
-    const maxWidth = 800;
-    const maxHeight = 500;
-    
-    const widthRatio = maxWidth / image.width;
-    const heightRatio = maxHeight / image.height;
-    const ratio = Math.min(widthRatio, heightRatio);
-    
-    const displayWidth = image.width * ratio;
-    const displayHeight = image.height * ratio;
-    
-    canvas.width = displayWidth;
-    canvas.height = displayHeight;
-    setScale(ratio);
-    
-    // Limpiar y dibujar imagen
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(image, 0, 0, displayWidth, displayHeight);
-    
-    // Dibujar línea si existe
-    if (linePoints.start) {
-      const startX = linePoints.start.x * ratio;
-      const startY = linePoints.start.y * ratio;
+      const ctx = canvas.getContext('2d');
       
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
+      // Calcular tamaño del canvas manteniendo proporción
+      const maxWidth = 800;
+      const maxHeight = 500;
       
-      if (linePoints.end) {
-        const endX = linePoints.end.x * ratio;
-        const endY = linePoints.end.y * ratio;
-        ctx.lineTo(endX, endY);
+      const widthRatio = maxWidth / image.width;
+      const heightRatio = maxHeight / image.height;
+      const ratio = Math.min(widthRatio, heightRatio);
+      
+      const displayWidth = image.width * ratio;
+      const displayHeight = image.height * ratio;
+      
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+      setScale(ratio);
+      
+      // Limpiar y dibujar imagen
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, 0, 0, displayWidth, displayHeight);
+      
+      // Dibujar línea si existe
+      if (linePoints.start) {
+        const startX = linePoints.start.x * ratio;
+        const startY = linePoints.start.y * ratio;
         
-        // Dibujar punto final
         ctx.beginPath();
-        ctx.arc(endX, endY, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#FF0000';
+        ctx.moveTo(startX, startY);
+        
+        if (linePoints.end) {
+          const endX = linePoints.end.x * ratio;
+          const endY = linePoints.end.y * ratio;
+          ctx.lineTo(endX, endY);
+          
+          // Dibujar punto final
+          ctx.beginPath();
+          ctx.arc(endX, endY, 5, 0, Math.PI * 2);
+          ctx.fillStyle = '#FF0000';
+          ctx.fill();
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        
+        ctx.strokeStyle = '#00FF00';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Dibujar punto inicial
+        ctx.beginPath();
+        ctx.arc(startX, startY, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#00FF00';
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
         ctx.lineWidth = 2;
         ctx.stroke();
       }
-      
-      ctx.strokeStyle = '#00FF00';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([5, 5]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      
-      // Dibujar punto inicial
-      ctx.beginPath();
-      ctx.arc(startX, startY, 5, 0, Math.PI * 2);
-      ctx.fillStyle = '#00FF00';
-      ctx.fill();
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-  };
-
- useEffect(() => {
-  drawCanvas();
-}, [image, linePoints, drawCanvas]);
+    };
+    
+    drawCanvas();
+  }, [image, linePoints]); // SOLO estas dependencias
 
   const handleCanvasClick = (e) => {
     if (!image) return;
