@@ -106,9 +106,9 @@ const ImageAnalyzer = () => {
     }
   };
 
-  useEffect(() => {
-    drawCanvas();
-  }, [image, linePoints]);
+ useEffect(() => {
+  drawCanvas();
+}, [image, linePoints, drawCanvas]);
 
   const handleCanvasClick = (e) => {
     if (!image) return;
